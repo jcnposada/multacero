@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MultaCero en Colombia</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <span class="logo">📋 MultaCero</span>
+      <span class="tag-legal">LegalCero ✅</span>
+    </header>
+
+    <section class="card">
+      <div class="badge">⚡ Validador de Prescripción SIMIT</div>
+      <h1>Consulta si tus multas en cobro coactivo prescribieron</h1>
+      <p>Ingresa tu cédula para verificar el estado real en el SIMIT y calcular tu derecho de petición.</p>
+      
+      <input type="text" id="cedula" placeholder="Escriba su número de cédula" class="input-field">
+      <button id="btnConsultar" class="btn-primary">🔍 Consultar Estado SIMIT</button>
+    </section>
+
+    <div id="resultados" class="hidden">
+      <div class="result-header">
+        <h3>Resultado Oficial SIMIT</h3>
+        <span class="cedula-ref">Cédula: <span id="cedulaMostrada"></span></span>
+      </div>
+
+      <div id="tarjetaMulta" class="card-resultado verde">
+        <div class="etiqueta-exito">✅ APTA PARA ELIMINACIÓN (ES MAYOR A 3 AÑOS)</div>
+        <div class="valor-principal">$ <span id="totalMulta"></span> COP</div>
+        
+        <div class="detalle">
+          <p><strong>Comparendo #<span id="numComparendo"></span></strong> — <span id="lugar"></span></p>
+          <p>Placa: <span id="placa"></span> | Infracción: <span id="infraccion"></span></p>
+          <p>Fecha Coactivo: <span id="fechaCoactivo"></span></p>
+          <p class="antiguedad">Antigüedad: <span id="antiguedad"></span> años transcurridos</p>
+          
+          <div class="valores">
+            <span>Capital: $<span id="capital"></span></span>
+            <span>Intereses: $<span id="intereses"></span></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-ahorro">
+        <h3>AHORRO TOTAL POR PRESCRIPCIÓN</h3>
+        <div class="valor-grande">$ <span id="ahorroTotal"></span> COP</div>
+        <p>Tarifa Gestión (1 Multa): $200.000 COP</p>
+        <a id="btnWhatsApp" class="btn-whatsapp" target="_blank">💬 Solicitar Eliminación al WhatsApp</a>
+        <p class="texto-pequeño">Se abrirá tu chat con el reporte detallado listo para enviar.</p>
+      </div>
+
+      <div class="info-legal">
+        <div class="bloque-legal">
+          <strong>Art. 159 CNT</strong>
+          <p>Prescribe a los 3 años de cobro coactivo.</p>
+        </div>
+        <div class="bloque-legal">
+          <strong>Derecho de Petición</strong>
+          <p>Amparado por la Constitución (Art. 23).</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>
