@@ -76,7 +76,7 @@ btnConsultar.addEventListener('click', async () => {
 
     // Enlace de WhatsApp
     const texto = encodeURIComponent(
-      `📋 CONSULTA MULTA CERO\n` +
+      `CONSULTA MULTA CERO\n` +
       `Cédula: ${cedula}\n` +
       `Consulta realizada en página oficial del SIMIT`
     );
