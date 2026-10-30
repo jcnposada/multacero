@@ -3,7 +3,7 @@ const resultadosDiv = document.getElementById('resultados');
 const tarjetaMulta = document.getElementById('tarjetaMulta');
 
 // ==== CONFIGURA TU NÚMERO DE WHATSAPP AQUÍ ====
-const WHATSAPP_NUMBER = '573000000000'; // Reemplaza por el tuyo
+const WHATSAPP_NUMBER = '573114018282'; // Reemplaza por el tuyo
 // ==============================================
 
 // Permitir buscar presionando Enter
