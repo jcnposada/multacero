@@ -39,7 +39,7 @@ btnConsultar.addEventListener('click', async () => {
 
     // Abrir página oficial del SIMIT en pestaña nueva
     alert(`✅ Te redirigimos a la página oficial del SIMIT\nDocumento: ${cedula}`);
-    window.open('https://www.simit.gov.co/consulta-ciudadano', '_blank');
+    window.open('https://www.fcm.org.co/simit/#/home-public', '_blank');
 
     // Mostrar sección informativa
     tarjetaMulta.className = 'card-resultado verde';
