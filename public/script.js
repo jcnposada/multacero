@@ -6,6 +6,11 @@ const tarjetaMulta = document.getElementById('tarjetaMulta');
 const WHATSAPP_NUMBER = '573114018282'; // Reemplaza por el tuyo
 // ==============================================
 
+// Permitir buscar presionando Enter
+document.getElementById('cedula').addEventListener('keypress', (e) => {
+  if (e.key === 'Enter') btnConsultar.click();
+});
+
 // Consultar y redirigir al SIMIT
 btnConsultar.addEventListener('click', async () => {
   const cedula = document.getElementById('cedula').value.trim();
@@ -45,18 +50,9 @@ btnConsultar.addEventListener('click', async () => {
       <p style="color:#059669; margin-top:15px;">Una vez verifiques tus multas, vuelve aquí para evaluar si prescribieron.</p>
     `;
 
-    // Datos base para la interfaz
+    // Actualizar datos existentes
     document.getElementById('cedulaMostrada').textContent = cedula;
-    document.getElementById('numComparendo').textContent = 'Ver en SIMIT';
-    document.getElementById('lugar').textContent = '—';
-    document.getElementById('placa').textContent = '—';
-    document.getElementById('infraccion').textContent = '—';
-    document.getElementById('fechaCoactivo').textContent = 'Ingresa la fecha abajo ↓';
-    document.getElementById('antiguedad').textContent = '—';
-    document.getElementById('capital').textContent = '—';
-    document.getElementById('intereses').textContent = '—';
-    document.getElementById('totalMulta').textContent = '—';
-    document.getElementById('ahorroTotal').textContent = '—';
+    document.getElementById('ahorroTotal').textContent = 'Calcula abajo';
 
     // Enlace de WhatsApp
     const texto = encodeURIComponent(
@@ -101,6 +97,7 @@ document.getElementById('btnCalcular').addEventListener('click', () => {
         Tienes derecho a solicitar eliminación por el Art. 159 CNT
       </div>
     `;
+    document.getElementById('ahorroTotal').textContent = 'Aplica eliminación';
   } else {
     div.innerHTML = `
       <div style="background:#fef3c7; padding:15px; border-radius:10px; color:#92400e; font-weight:bold;">
@@ -108,5 +105,6 @@ document.getElementById('btnCalcular').addEventListener('click', () => {
         Antigüedad: ${anios} años de 3 necesarios
       </div>
     `;
+    document.getElementById('ahorroTotal').textContent = 'No aplica aún';
   }
 });
