@@ -3,7 +3,7 @@ const resultadosDiv = document.getElementById('resultados');
 const tarjetaMulta = document.getElementById('tarjetaMulta');
 
 // ==== CONFIGURA TU NÚMERO DE WHATSAPP AQUÍ ====
-const WHATSAPP_NUMBER = '573114018282'; // Reemplaza por el tuyo
+const WHATSAPP_NUMBER = '573000000000'; // Reemplaza por el tuyo
 // ==============================================
 
 // Permitir buscar presionando Enter
@@ -11,7 +11,7 @@ document.getElementById('cedula').addEventListener('keypress', (e) => {
   if (e.key === 'Enter') btnConsultar.click();
 });
 
-// Consultar y redirigir al SIMIT
+// Consultar y redirigir al SIMIT oficial
 btnConsultar.addEventListener('click', async () => {
   const cedula = document.getElementById('cedula').value.trim();
   
@@ -37,20 +37,40 @@ btnConsultar.addEventListener('click', async () => {
       throw new Error(datos.error);
     }
 
-    // Abrir página oficial del SIMIT en pestaña nueva
-    alert(`✅ Te redirigimos a la página oficial del SIMIT\nDocumento: ${cedula}`);
+    // Abrir página OFICIAL CORRECTA del SIMIT
+    alert(`✅ Abriendo página oficial del SIMIT...\nTu cédula: ${cedula}\n\nCópiala y pégala en el campo de consulta.`);
     window.open('https://www.fcm.org.co/simit/#/home-public', '_blank');
 
     // Mostrar sección informativa
     tarjetaMulta.className = 'card-resultado verde';
     tarjetaMulta.innerHTML = `
-      <div class="etiqueta-exito">✅ Ingresa directamente al SIMIT</div>
-      <p style="margin:10px 0;">En la página oficial ingresa tu documento:</p>
-      <p style="font-weight:bold; font-size:1.2rem;">${cedula}</p>
-      <p style="color:#059669; margin-top:15px;">Una vez verifiques tus multas, vuelve aquí para evaluar si prescribieron.</p>
+      <div class="etiqueta-exito">✅ Página oficial abierta en pestaña nueva</div>
+      <p style="margin:10px 0 15px;">Tu número de documento listo para copiar:</p>
+      <div style="background:#e0e7ff; padding:15px; border-radius:10px; text-align:center; font-size:1.5rem; font-weight:bold; color:#1e40af; letter-spacing:2px; cursor:pointer;" id="copiarCedula">
+        ${cedula}
+        <div style="font-size:0.7rem; color:#6366f1; margin-top:5px;">Haz clic para copiar</div>
+      </div>
+      <p style="color:#059669; margin-top:15px;">1. Copia el número de arriba<br>2. Pégalo en la página del SIMIT<br>3. Vuelve aquí para calcular prescripción</p>
     `;
 
-    // Actualizar datos existentes
+    // Función copiar al hacer clic
+    setTimeout(() => {
+      const copiarDiv = document.getElementById('copiarCedula');
+      if (copiarDiv) {
+        copiarDiv.addEventListener('click', () => {
+          navigator.clipboard.writeText(cedula).then(() => {
+            copiarDiv.style.background = '#dcfce7';
+            copiarDiv.innerHTML = `${cedula}<div style="font-size:0.7rem; color:#16a34a; margin-top:5px;">✅ ¡Copiado!</div>`;
+            setTimeout(() => {
+              copiarDiv.style.background = '#e0e7ff';
+              copiarDiv.innerHTML = `${cedula}<div style="font-size:0.7rem; color:#6366f1; margin-top:5px;">Haz clic para copiar</div>`;
+            }, 2000);
+          });
+        });
+      }
+    }, 100);
+
+    // Actualizar datos
     document.getElementById('cedulaMostrada').textContent = cedula;
     document.getElementById('ahorroTotal').textContent = 'Calcula abajo';
 
