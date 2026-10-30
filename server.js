@@ -10,10 +10,8 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static('public'));
 
-// Configuración desde variables de entorno
-const PLACAPI_KEY = process.env.PLACAPI_KEY || '';
+const PLACAPI_KEY = process.env.PLACAPI_KEY;
 
-// Ruta de consulta
 app.post('/api/consultar', async (req, res) => {
   try {
     const { cedula } = req.body;
@@ -23,10 +21,12 @@ app.post('/api/consultar', async (req, res) => {
     }
 
     if (!PLACAPI_KEY) {
-      return res.status(500).json({ error: 'Clave de API no configurada' });
+      console.error('❌ PLACAPI_KEY no está definida');
+      return res.status(500).json({ error: 'Clave de API no configurada en el servidor' });
     }
 
-    // Llamada a la API del SIMIT
+    console.log('🔍 Consultando cédula:', cedula);
+
     const respuesta = await fetch('https://placapi.com/api/comparendos', {
       method: 'POST',
       headers: {
@@ -39,14 +39,21 @@ app.post('/api/consultar', async (req, res) => {
       })
     });
 
+    console.log('📡 Respuesta API — Estado:', respuesta.status);
+
     if (!respuesta.ok) {
-      return res.status(respuesta.status).json({ error: 'Error al consultar en el servicio' });
+      const errorTexto = await respuesta.text();
+      console.error('❌ Error de la API:', respuesta.status, errorTexto);
+      return res.status(respuesta.status).json({ 
+        error: `Servicio respondió con código ${respuesta.status}. Verifica tu clave o saldo.` 
+      });
     }
 
     const datos = await respuesta.json();
+    console.log('✅ Datos recibidos:', datos);
+
     const hoy = new Date();
 
-    // Calcular antigüedad y prescripción automática
     if (datos && Array.isArray(datos.multas)) {
       datos.multas = datos.multas.map(multa => {
         const fechaCoact = multa.fechaCoactivo ? new Date(multa.fechaCoactivo) : null;
@@ -64,11 +71,11 @@ app.post('/api/consultar', async (req, res) => {
 
     res.json(datos);
   } catch (error) {
-    console.error('Error en consulta:', error);
-    res.status(500).json({ error: 'Error interno del servidor' });
+    console.error('❌ Error interno:', error.message);
+    res.status(500).json({ error: 'Error del servidor: ' + error.message });
   }
 });
 
 app.listen(PORT, () => {
-  console.log(`✅ Servidor activo en el puerto ${PORT}`);
+  console.log('✅ Servidor activo en el puerto', PORT);
 });
