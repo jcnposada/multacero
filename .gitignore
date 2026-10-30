@@ -1,0 +1,15 @@
+# Variables de entorno con claves secretas
+.env
+
+.env.example
+
+# Carpeta de dependencias (se instala en el servidor)
+node_modules/
+
+# Archivos de registro y errores
+*.log
+npm-debug.log
+
+# Archivos temporales del sistema
+.DS_Store
+Thumbs.db
