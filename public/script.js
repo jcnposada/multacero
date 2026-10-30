@@ -2,9 +2,11 @@ const btnConsultar = document.getElementById('btnConsultar');
 const resultadosDiv = document.getElementById('resultados');
 const tarjetaMulta = document.getElementById('tarjetaMulta');
 
-// Tu número de WhatsApp
+// ==== CONFIGURA TU NÚMERO DE WHATSAPP AQUÍ ====
 const WHATSAPP_NUMBER = '573114018282'; // Reemplaza por el tuyo
+// ==============================================
 
+// Consultar y redirigir al SIMIT
 btnConsultar.addEventListener('click', async () => {
   const cedula = document.getElementById('cedula').value.trim();
   
@@ -27,58 +29,40 @@ btnConsultar.addEventListener('click', async () => {
     const datos = await respuesta.json();
 
     if (!respuesta.ok) {
-      throw new Error(datos.error || 'Error en la consulta');
+      throw new Error(datos.error);
     }
 
-    if (!datos.multas || datos.multas.length === 0) {
-      alert('✅ No se encontraron multas registradas para este documento.');
-      return;
-    }
+    // Abrir página oficial del SIMIT en pestaña nueva
+    alert(`✅ Te redirigimos a la página oficial del SIMIT\nDocumento: ${cedula}`);
+    window.open('https://www.simit.gov.co/consulta-ciudadano', '_blank');
 
-    // Buscar multa apta o usar la primera
-    let multaSeleccionada = datos.multas.find(m => m.aptaEliminacion) || datos.multas[0];
+    // Mostrar sección informativa
+    tarjetaMulta.className = 'card-resultado verde';
+    tarjetaMulta.innerHTML = `
+      <div class="etiqueta-exito">✅ Ingresa directamente al SIMIT</div>
+      <p style="margin:10px 0;">En la página oficial ingresa tu documento:</p>
+      <p style="font-weight:bold; font-size:1.2rem;">${cedula}</p>
+      <p style="color:#059669; margin-top:15px;">Una vez verifiques tus multas, vuelve aquí para evaluar si prescribieron.</p>
+    `;
 
-    // Actualizar estilo según prescripción
-    if (multaSeleccionada.aptaEliminacion) {
-      tarjetaMulta.className = 'card-resultado verde';
-      tarjetaMulta.querySelector('.etiqueta-exito').textContent = '✅ APTA PARA ELIMINACIÓN (ES MAYOR A 3 AÑOS)';
-      tarjetaMulta.querySelector('.etiqueta-exito').style.display = 'block';
-    } else {
-      tarjetaMulta.className = 'card-resultado rojo';
-      tarjetaMulta.querySelector('.etiqueta-exito').textContent = '⚠️ NO APTA — Menos de 3 años';
-      tarjetaMulta.querySelector('.etiqueta-exito').classList.remove('etiqueta-exito');
-      tarjetaMulta.querySelector('.etiqueta-exito').classList.add('etiqueta-no');
-    }
-
-    // Llenar datos
+    // Datos base para la interfaz
     document.getElementById('cedulaMostrada').textContent = cedula;
-    document.getElementById('numComparendo').textContent = multaSeleccionada.numeroComparendo || '—';
-    document.getElementById('lugar').textContent = multaSeleccionada.municipio || 'Caucasia Vía Nacional';
-    document.getElementById('placa').textContent = multaSeleccionada.placa || '—';
-    document.getElementById('infraccion').textContent = multaSeleccionada.codigoInfraccion || '—';
-    document.getElementById('fechaCoactivo').textContent = multaSeleccionada.fechaCoactivo || '—';
-    document.getElementById('antiguedad').textContent = multaSeleccionada.antiguedadAnios || '0';
-    
-    const capital = multaSeleccionada.valor || 0;
-    const intereses = multaSeleccionada.intereses || 0;
-    const total = multaSeleccionada.valorTotal || (capital + intereses);
+    document.getElementById('numComparendo').textContent = 'Ver en SIMIT';
+    document.getElementById('lugar').textContent = '—';
+    document.getElementById('placa').textContent = '—';
+    document.getElementById('infraccion').textContent = '—';
+    document.getElementById('fechaCoactivo').textContent = 'Ingresa la fecha abajo ↓';
+    document.getElementById('antiguedad').textContent = '—';
+    document.getElementById('capital').textContent = '—';
+    document.getElementById('intereses').textContent = '—';
+    document.getElementById('totalMulta').textContent = '—';
+    document.getElementById('ahorroTotal').textContent = '—';
 
-    document.getElementById('capital').textContent = Number(capital).toLocaleString('es-CO');
-    document.getElementById('intereses').textContent = Number(intereses).toLocaleString('es-CO');
-    document.getElementById('totalMulta').textContent = Number(total).toLocaleString('es-CO');
-    document.getElementById('ahorroTotal').textContent = Number(total).toLocaleString('es-CO');
-
-    // Enlace WhatsApp
+    // Enlace de WhatsApp
     const texto = encodeURIComponent(
-      `📋 REPORTE MULTA CERO\n` +
+      `📋 CONSULTA MULTA CERO\n` +
       `Cédula: ${cedula}\n` +
-      `Comparendo: ${multaSeleccionada.numeroComparendo || 'N/D'}\n` +
-      `Placa: ${multaSeleccionada.placa || 'N/D'}\n` +
-      `Infracción: ${multaSeleccionada.codigoInfraccion || 'N/D'}\n` +
-      `Fecha Coactivo: ${multaSeleccionada.fechaCoactivo || 'N/D'}\n` +
-      `Antigüedad: ${multaSeleccionada.antiguedadAnios} años\n` +
-      `Valor Total: $${Number(total).toLocaleString('es-CO')} COP\n` +
-      `✅ Apta para prescripción: ${multaSeleccionada.aptaEliminacion ? 'SÍ' : 'NO'}`
+      `Consulta realizada en página oficial del SIMIT`
     );
     document.getElementById('btnWhatsApp').href = `https://wa.me/${WHATSAPP_NUMBER}?text=${texto}`;
 
@@ -86,9 +70,43 @@ btnConsultar.addEventListener('click', async () => {
 
   } catch (error) {
     alert(`❌ ${error.message}`);
-    console.error(error);
   } finally {
     btnConsultar.textContent = '🔍 Consultar Estado SIMIT';
     btnConsultar.disabled = false;
+  }
+});
+
+// Calculadora de Prescripción
+document.getElementById('btnCalcular').addEventListener('click', () => {
+  const fechaInput = document.getElementById('fechaCoactivoCalculo').value;
+  
+  if (!fechaInput) {
+    alert('⚠️ Ingresa la fecha de cobro coactivo que aparece en tu multa');
+    return;
+  }
+
+  const fechaCoact = new Date(fechaInput);
+  const hoy = new Date();
+  const anios = Number(((hoy - fechaCoact) / (1000 * 60 * 60 * 24 * 365.25)).toFixed(1));
+  const prescribio = anios > 3;
+
+  const div = document.getElementById('resultadoCalculo');
+  div.style.display = 'block';
+  
+  if (prescribio) {
+    div.innerHTML = `
+      <div style="background:#dcfce7; padding:15px; border-radius:10px; color:#065f46; font-weight:bold;">
+        ✅ ¡SÍ PRESCRIBIÓ!<br>
+        Antigüedad: ${anios} años (más de 3 años)<br>
+        Tienes derecho a solicitar eliminación por el Art. 159 CNT
+      </div>
+    `;
+  } else {
+    div.innerHTML = `
+      <div style="background:#fef3c7; padding:15px; border-radius:10px; color:#92400e; font-weight:bold;">
+        ⚠️ Aún NO prescribió<br>
+        Antigüedad: ${anios} años de 3 necesarios
+      </div>
+    `;
   }
 });
