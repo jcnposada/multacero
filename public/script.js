@@ -115,9 +115,9 @@ document.getElementById('btnCalcular').addEventListener('click', async () => {
   if (prescribio) {
     div.innerHTML = `
       <div style="background:#dcfce7; padding:20px; border-radius:10px; color:#065f46; font-weight:bold; text-align:center;">
-        ✅ ¡SÍ PRESCRIBIÓ!<br><br>
-        Antigüedad: ${anios} años (más de 3 años)<br>
-        Tienes derecho a solicitar la eliminación legal
+        ✅ ¡SI, PRESCRIBIÓ!<br><br>
+        Antigüedad: ${anios} años <br>
+        Podemos ayudarte a solicitar la eliminación legal
       </div>
     `;
     document.getElementById('ahorroTotal').textContent = 'Aplica ✅';
