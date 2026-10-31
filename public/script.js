@@ -115,9 +115,9 @@ document.getElementById('btnCalcular').addEventListener('click', async () => {
   if (prescribio) {
     div.innerHTML = `
       <div style="background:#dcfce7; padding:15px; border-radius:10px; color:#065f46; font-weight:bold;">
-        ✅ ¡SÍ PRESCRIBIÓ!<br>
+        ✅ ¡SI PRESCRIBIÓ!<br>
         Antigüedad: ${anios} años (más de 3 años)<br>
-        Tienes derecho a solicitar eliminación por el Art. 159 CNT
+        Te ayudaremos con la eliminación
       </div>
     `;
     document.getElementById('ahorroTotal').textContent = 'Aplica eliminación';
