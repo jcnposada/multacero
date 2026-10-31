@@ -2,16 +2,12 @@ const btnConsultar = document.getElementById('btnConsultar');
 const resultadosDiv = document.getElementById('resultados');
 const tarjetaMulta = document.getElementById('tarjetaMulta');
 
-// ==== CONFIGURA TU NÚMERO DE WHATSAPP AQUÍ ====
-const WHATSAPP_NUMBER = '573114018282'; // Reemplaza por el tuyo
-// ==============================================
+const WHATSAPP_NUMBER = '573114018282';
 
-// Permitir buscar presionando Enter
 document.getElementById('cedula').addEventListener('keypress', (e) => {
   if (e.key === 'Enter') btnConsultar.click();
 });
 
-// Consultar y redirigir al SIMIT oficial
 btnConsultar.addEventListener('click', async () => {
   const cedula = document.getElementById('cedula').value.trim();
   
@@ -37,11 +33,9 @@ btnConsultar.addEventListener('click', async () => {
       throw new Error(datos.error);
     }
 
-    // Abrir página OFICIAL CORRECTA del SIMIT
     alert(`✅ Abriendo página oficial del SIMIT...\nTu cédula: ${cedula}\n\nCópiala y pégala en el campo de consulta.`);
     window.open('https://www.fcm.org.co/simit/#/home-public', '_blank');
 
-    // Mostrar sección informativa
     tarjetaMulta.className = 'card-resultado verde';
     tarjetaMulta.innerHTML = `
       <div class="etiqueta-exito">✅ Página oficial abierta en pestaña nueva</div>
@@ -53,7 +47,6 @@ btnConsultar.addEventListener('click', async () => {
       <p style="color:#059669; margin-top:15px;">1. Copia el número de arriba<br>2. Pégalo en la página del SIMIT<br>3. Vuelve aquí para calcular prescripción</p>
     `;
 
-    // Función copiar al hacer clic
     setTimeout(() => {
       const copiarDiv = document.getElementById('copiarCedula');
       if (copiarDiv) {
@@ -70,11 +63,9 @@ btnConsultar.addEventListener('click', async () => {
       }
     }, 100);
 
-    // Actualizar datos
     document.getElementById('cedulaMostrada').textContent = cedula;
     document.getElementById('ahorroTotal').textContent = 'Calcula abajo';
 
-    // Enlace de WhatsApp
     const texto = encodeURIComponent(
       `CONSULTA MULTA CERO\n` +
       `Cédula: ${cedula}\n` +
@@ -92,9 +83,9 @@ btnConsultar.addEventListener('click', async () => {
   }
 });
 
-// Calculadora de Prescripción
-document.getElementById('btnCalcular').addEventListener('click', () => {
+document.getElementById('btnCalcular').addEventListener('click', async () => {
   const fechaInput = document.getElementById('fechaCoactivoCalculo').value;
+  const cedula = document.getElementById('cedulaMostrada').textContent;
   
   if (!fechaInput) {
     alert('⚠️ Ingresa la fecha de cobro coactivo que aparece en tu multa');
@@ -105,6 +96,18 @@ document.getElementById('btnCalcular').addEventListener('click', () => {
   const hoy = new Date();
   const anios = Number(((hoy - fechaCoact) / (1000 * 60 * 60 * 24 * 365.25)).toFixed(1));
   const prescribio = anios > 3;
+
+  // Enviar datos al servidor para guardar
+  await fetch('/api/guardar-calculo', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      cedula,
+      fechaCoactivo: fechaInput,
+      antiguedadAnios: anios,
+      prescribio
+    })
+  });
 
   const div = document.getElementById('resultadoCalculo');
   div.style.display = 'block';
