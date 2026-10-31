@@ -14,37 +14,66 @@
     </header>
 
     <section class="card">
-      <div class="badge">⚡ Validador de Prescripción SIMIT</div>
+      <div class="badge">⚡ Validador de Prescripción</div>
       <h1>Consulta tus multas</h1>
-      <p>Ingresa tu cédula para verificar el estado real en el SIMIT.</p>
+      <p>Ingresa tu cédula y la fecha de cobro coactivo para saber si prescribió.</p>
       
       <input type="text" id="cedula" placeholder="Ingrese su número de cédula" class="input-field">
-      <button id="btnConsultar" class="btn-primary">🔍 Consultar Estado SIMIT</button>
+      
+      <div style="margin:15px 0;">
+        <p style="font-size:0.9rem; color:#374151; margin-bottom:8px;">¿Tienes la fecha de cobro coactivo?</p>
+        <div style="display:flex; gap:10px;">
+          <button id="btnTengoFecha" class="btn-primary" style="background:#10b981; flex:1;">✅ Sí, la tengo</button>
+          <button id="btnNoTengoFecha" class="btn-primary" style="background:#6366f1; flex:1;">❌ No, la necesito</button>
+        </div>
+      </div>
     </section>
 
     <div id="resultados" class="hidden">
       <div class="result-header">
-        <h3>Resultado Oficial SIMIT</h3>
+        <h3>Resultado del Análisis</h3>
         <span class="cedula-ref">Cédula: <span id="cedulaMostrada"></span></span>
       </div>
 
-      <div id="tarjetaMulta" class="card-resultado verde">
+      <!-- Opción: No tengo fecha → guía para consultar en SIMIT -->
+      <div id="bloqueSinFecha" class="hidden">
+        <div style="background:#e0e7ff; border-radius:12px; padding:20px; margin:15px 0;">
+          <h3 style="color:#3730a3; margin-bottom:10px;">📋 Consulta tu fecha en el SIMIT</h3>
+          <p style="margin-bottom:15px;">Abre la página oficial, busca tu documento y anota la fecha de cobro coactivo.</p>
+          
+          <div style="background:#c7d2fe; padding:15px; border-radius:10px; text-align:center; font-size:1.5rem; font-weight:bold; color:#3730a3; letter-spacing:2px; cursor:pointer; margin-bottom:15px;" id="copiarCedula">
+            <span id="cedulaCopiar"></span>
+            <div style="font-size:0.7rem; color:#4f46e5; margin-top:5px;">Haz clic para copiar</div>
+          </div>
+          
+          <button id="btnAbrirSimit" class="btn-primary" style="width:100%;">🔗 Abrir página del SIMIT</button>
+          
+          <div style="margin-top:20px; padding-top:15px; border-top:1px dashed #c7d2fe;">
+            <p style="font-weight:bold; color:#374151;">¿Ya la conseguiste?</p>
+            <button id="btnYaTengoFecha" class="btn-primary" style="background:#10b981; width:100%;">✅ Sí, ingreso la fecha</button>
+          </div>
+        </div>
       </div>
 
-      <div style="background:#f0fdf4; border-radius:12px; padding:20px; margin:20px 0;">
-        <h3 style="color:#065f46; margin-bottom:15px;">📝 Calcula tu prescripción</h3>
-        <p style="font-size:0.9rem; color:#374151; margin-bottom:10px;">Ingresa la fecha de cobro coactivo que aparece en tu multa:</p>
-        <input type="date" id="fechaCoactivoCalculo" class="input-field" style="margin-bottom:10px;">
-        <button id="btnCalcular" class="btn-primary" style="background:#10b981;">Calcular Prescripción</button>
-        <div id="resultadoCalculo" style="margin-top:15px; display:none;"></div>
-      </div>
+      <!-- Opción: Calcular prescripción -->
+      <div id="bloqueCalculo" class="hidden">
+        <div style="background:#f0fdf4; border-radius:12px; padding:20px; margin:15px 0;">
+          <h3 style="color:#065f46; margin-bottom:15px;">📝 Ingresa la fecha de cobro coactivo</h3>
+          <input type="date" id="fechaCoactivoCalculo" class="input-field" style="margin-bottom:10px;">
+          <button id="btnCalcular" class="btn-primary" style="background:#10b981; width:100%;">Calcular Prescripción</button>
+        </div>
 
-      <div class="card-ahorro">
-        <h3>AHORRARÁS CON NOSOTROS</h3>
-        <div class="valor-grande" id="ahorroTotal">—</div>
-        <p>Consulta tu tarifa</p>
-        <a id="btnWhatsApp" class="btn-whatsapp" target="_blank">💬 Solicitar Eliminación al WhatsApp</a>
-        <p class="texto-pequeño">Se abrirá tu chat con el reporte detallado listo para enviar.</p>
+        <div id="resultadoCalculo" style="display:none; margin:20px 0;"></div>
+
+        <div id="bloqueAccion" class="hidden">
+          <div class="card-ahorro">
+            <h3>AHORRARÁS CON NOSOTROS</h3>
+            <div class="valor-grande" id="ahorroTotal">—</div>
+            <p>Consulta tu tarifa</p>
+            <a id="btnWhatsApp" class="btn-whatsapp" target="_blank">💬 Solicitar Eliminación al WhatsApp</a>
+            <p class="texto-pequeño">Se abrirá tu chat con el reporte detallado listo para enviar.</p>
+          </div>
+        </div>
       </div>
 
       <div class="info-legal">

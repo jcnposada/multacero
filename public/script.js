@@ -1,94 +1,98 @@
-const btnConsultar = document.getElementById('btnConsultar');
-const resultadosDiv = document.getElementById('resultados');
-const tarjetaMulta = document.getElementById('tarjetaMulta');
-
 const WHATSAPP_NUMBER = '573114018282';
 
-document.getElementById('cedula').addEventListener('keypress', (e) => {
-  if (e.key === 'Enter') btnConsultar.click();
+// Elementos
+const cedulaInput = document.getElementById('cedula');
+const btnTengoFecha = document.getElementById('btnTengoFecha');
+const btnNoTengoFecha = document.getElementById('btnNoTengoFecha');
+const resultadosDiv = document.getElementById('resultados');
+const bloqueSinFecha = document.getElementById('bloqueSinFecha');
+const bloqueCalculo = document.getElementById('bloqueCalculo');
+const bloqueAccion = document.getElementById('bloqueAccion');
+
+// Enter para buscar
+cedulaInput.addEventListener('keypress', (e) => {
+  if (e.key === 'Enter') cedulaInput.blur();
 });
 
-btnConsultar.addEventListener('click', async () => {
-  const cedula = document.getElementById('cedula').value.trim();
-  
+// Validar cédula primero
+function hayCedula() {
+  const cedula = cedulaInput.value.trim();
   if (!cedula) {
     alert('⚠️ Por favor ingresa un número de cédula');
-    return;
+    return null;
   }
+  return cedula;
+}
 
-  resultadosDiv.classList.add('hidden');
-  btnConsultar.textContent = '🔄 Consultando...';
-  btnConsultar.disabled = true;
+// Opción 1: SÍ tengo la fecha
+btnTengoFecha.addEventListener('click', async () => {
+  const cedula = hayCedula();
+  if (!cedula) return;
 
-  try {
-    const respuesta = await fetch('/api/consultar', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ cedula })
-    });
-
-    const datos = await respuesta.json();
-
-    if (!respuesta.ok) {
-      throw new Error(datos.error);
-    }
-
-    alert(`✅ Abriendo página oficial del SIMIT...\nTu cédula: ${cedula}\n\nCópiala y pégala en el campo de consulta.`);
-    window.open('https://www.fcm.org.co/simit/#/home-public', '_blank');
-
-    tarjetaMulta.className = 'card-resultado verde';
-    tarjetaMulta.innerHTML = `
-      <div class="etiqueta-exito">✅ Página oficial abierta en pestaña nueva</div>
-      <p style="margin:10px 0 15px;">Tu número de documento listo para copiar:</p>
-      <div style="background:#e0e7ff; padding:15px; border-radius:10px; text-align:center; font-size:1.5rem; font-weight:bold; color:#1e40af; letter-spacing:2px; cursor:pointer;" id="copiarCedula">
-        ${cedula}
-        <div style="font-size:0.7rem; color:#6366f1; margin-top:5px;">Haz clic para copiar</div>
-      </div>
-      <p style="color:#059669; margin-top:15px;">1. Copia el número de arriba<br>2. Pégalo en la página del SIMIT<br>3. Vuelve aquí para calcular prescripción</p>
-    `;
-
-    setTimeout(() => {
-      const copiarDiv = document.getElementById('copiarCedula');
-      if (copiarDiv) {
-        copiarDiv.addEventListener('click', () => {
-          navigator.clipboard.writeText(cedula).then(() => {
-            copiarDiv.style.background = '#dcfce7';
-            copiarDiv.innerHTML = `${cedula}<div style="font-size:0.7rem; color:#16a34a; margin-top:5px;">✅ ¡Copiado!</div>`;
-            setTimeout(() => {
-              copiarDiv.style.background = '#e0e7ff';
-              copiarDiv.innerHTML = `${cedula}<div style="font-size:0.7rem; color:#6366f1; margin-top:5px;">Haz clic para copiar</div>`;
-            }, 2000);
-          });
-        });
-      }
-    }, 100);
-
-    document.getElementById('cedulaMostrada').textContent = cedula;
-    document.getElementById('ahorroTotal').textContent = 'Calcula abajo';
-
-    const texto = encodeURIComponent(
-      `CONSULTA MULTA CERO\n` +
-      `Cédula: ${cedula}\n` +
-      `Consulta realizada en página oficial del SIMIT`
-    );
-    document.getElementById('btnWhatsApp').href = `https://wa.me/${WHATSAPP_NUMBER}?text=${texto}`;
-
-    resultadosDiv.classList.remove('hidden');
-
-  } catch (error) {
-    alert(`❌ ${error.message}`);
-  } finally {
-    btnConsultar.textContent = '🔍 Consultar Estado SIMIT';
-    btnConsultar.disabled = false;
-  }
+  await guardarConsulta(cedula);
+  mostrarSeccion(cedula, 'calculo');
 });
 
+// Opción 2: NO tengo la fecha
+btnNoTengoFecha.addEventListener('click', async () => {
+  const cedula = hayCedula();
+  if (!cedula) return;
+
+  await guardarConsulta(cedula);
+  mostrarSeccion(cedula, 'sinfecha');
+});
+
+// Mostrar sección según caso
+function mostrarSeccion(cedula, tipo) {
+  resultadosDiv.classList.remove('hidden');
+  document.getElementById('cedulaMostrada').textContent = cedula;
+  document.getElementById('cedulaCopiar').textContent = cedula;
+  
+  bloqueSinFecha.classList.add('hidden');
+  bloqueCalculo.classList.add('hidden');
+  bloqueAccion.classList.add('hidden');
+
+  if (tipo === 'sinfecha') {
+    bloqueSinFecha.classList.remove('hidden');
+    activarCopiar(cedula);
+  } else {
+    bloqueCalculo.classList.remove('hidden');
+  }
+}
+
+// Copiar cédula al portapapeles
+function activarCopiar(cedula) {
+  const copiarDiv = document.getElementById('copiarCedula');
+  copiarDiv.onclick = () => {
+    navigator.clipboard.writeText(cedula).then(() => {
+      copiarDiv.style.background = '#a5b4fc';
+      copiarDiv.innerHTML = `${cedula}<div style="font-size:0.7rem; color:#3730a3; margin-top:5px;">✅ ¡Copiado!</div>`;
+      setTimeout(() => {
+        copiarDiv.style.background = '#c7d2fe';
+        copiarDiv.innerHTML = `${cedula}<div style="font-size:0.7rem; color:#4f46e5; margin-top:5px;">Haz clic para copiar</div>`;
+      }, 2000);
+    });
+  };
+}
+
+// Abrir SIMIT
+document.getElementById('btnAbrirSimit').addEventListener('click', () => {
+  window.open('https://www.fcm.org.co/simit/#/home-public', '_blank');
+});
+
+// Ya conseguí la fecha
+document.getElementById('btnYaTengoFecha').addEventListener('click', () => {
+  bloqueSinFecha.classList.add('hidden');
+  bloqueCalculo.classList.remove('hidden');
+});
+
+// Calcular prescripción
 document.getElementById('btnCalcular').addEventListener('click', async () => {
   const fechaInput = document.getElementById('fechaCoactivoCalculo').value;
   const cedula = document.getElementById('cedulaMostrada').textContent;
   
   if (!fechaInput) {
-    alert('⚠️ Ingresa la fecha de cobro coactivo que aparece en tu multa');
+    alert('⚠️ Ingresa la fecha de cobro coactivo');
     return;
   }
 
@@ -97,37 +101,59 @@ document.getElementById('btnCalcular').addEventListener('click', async () => {
   const anios = Number(((hoy - fechaCoact) / (1000 * 60 * 60 * 24 * 365.25)).toFixed(1));
   const prescribio = anios > 3;
 
-  // Enviar datos al servidor para guardar
+  // Guardar cálculo
   await fetch('/api/guardar-calculo', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      cedula,
-      fechaCoactivo: fechaInput,
-      antiguedadAnios: anios,
-      prescribio
-    })
+    body: JSON.stringify({ cedula, fechaCoactivo: fechaInput, antiguedadAnios: anios, prescribio })
   });
 
+  // Mostrar resultado
   const div = document.getElementById('resultadoCalculo');
   div.style.display = 'block';
   
   if (prescribio) {
     div.innerHTML = `
-      <div style="background:#dcfce7; padding:15px; border-radius:10px; color:#065f46; font-weight:bold;">
-        ✅ ¡SI PRESCRIBIÓ!<br>
+      <div style="background:#dcfce7; padding:20px; border-radius:10px; color:#065f46; font-weight:bold; text-align:center;">
+        ✅ ¡SÍ PRESCRIBIÓ!<br><br>
         Antigüedad: ${anios} años (más de 3 años)<br>
-        Te ayudaremos con la eliminación
+        Tienes derecho a solicitar la eliminación legal
       </div>
     `;
-    document.getElementById('ahorroTotal').textContent = 'Aplica eliminación';
+    document.getElementById('ahorroTotal').textContent = 'Aplica ✅';
+    bloqueAccion.classList.remove('hidden');
   } else {
     div.innerHTML = `
-      <div style="background:#fef3c7; padding:15px; border-radius:10px; color:#92400e; font-weight:bold;">
-        ⚠️ Aún NO prescribió<br>
-        Antigüedad: ${anios} años de 3 necesarios
+      <div style="background:#fef3c7; padding:20px; border-radius:10px; color:#92400e; font-weight:bold; text-align:center;">
+        ⚠️ Aún NO prescribió<br><br>
+        Antigüedad: ${anios} años de 3 necesarios<br>
+        Te recomendamos esperar a completar el plazo
       </div>
     `;
-    document.getElementById('ahorroTotal').textContent = 'No aplica aún';
+    document.getElementById('ahorroTotal').textContent = 'Aún no aplica';
+    bloqueAccion.classList.add('hidden');
   }
+
+  // Enlace de WhatsApp
+  const texto = encodeURIComponent(
+    `📋 REPORTE PRESCRIPCIÓN\n` +
+    `Cédula: ${cedula}\n` +
+    `Fecha Coactivo: ${fechaInput}\n` +
+    `Antigüedad: ${anios} años\n` +
+    `Prescribió: ${prescribio ? 'SÍ ✅' : 'NO ⚠️'}`
+  );
+  document.getElementById('btnWhatsApp').href = `https://wa.me/${WHATSAPP_NUMBER}?text=${texto}`;
 });
+
+// Guardar consulta inicial
+async function guardarConsulta(cedula) {
+  try {
+    await fetch('/api/consultar', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ cedula })
+    });
+  } catch (e) {
+    console.log('Error guardando');
+  }
+}
